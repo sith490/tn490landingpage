@@ -62,6 +62,19 @@
     .admin-body { max-width: 800px; margin: 0 auto; padding: 32px 28px 80px; display: flex; flex-direction: column; gap: 32px; }
     .admin-section { display: flex; flex-direction: column; gap: 14px; }
     .admin-section-title { font-size: 9px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .stat-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 4px; padding: 18px 16px; display: flex; flex-direction: column; gap: 6px; }
+    .stat-num { font-size: 28px; font-weight: 600; color: #fff; }
+    .stat-label { font-size: 10px; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+    .click-table { width: 100%; border-collapse: collapse; }
+    .click-table th { font-size: 9px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); text-align: left; padding: 0 0 10px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .click-table td { padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 12px; color: var(--text); vertical-align: middle; }
+    .click-table td:last-child { text-align: right; color: var(--accent); font-weight: 600; }
+    .bar-wrap { width: 120px; height: 3px; background: rgba(255,255,255,0.07); border-radius: 2px; display: inline-block; margin-right: 12px; vertical-align: middle; }
+    .bar-fill { height: 100%; background: var(--accent); border-radius: 2px; }
+    .referrer-list { display: flex; flex-direction: column; gap: 8px; }
+    .referrer-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; padding: 10px 14px; background: rgba(255,255,255,0.02); border-radius: 3px; border: 1px solid rgba(255,255,255,0.05); }
+    .referrer-row span:last-child { color: var(--accent); font-weight: 600; }
     .link-editor-list { display: flex; flex-direction: column; gap: 10px; }
     .link-editor-row { display: grid; grid-template-columns: 1fr 1fr auto auto; gap: 10px; align-items: center; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 4px; padding: 14px; }
     .link-editor-row input { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 3px; padding: 9px 12px; color: #fff; font-family: var(--font); font-size: 12px; outline: none; width: 100%; }
@@ -74,6 +87,7 @@
     .save-bar.visible { display: flex; }
     .save-bar p { font-size: 11px; color: var(--muted); }
     .save-note { font-size: 10px; color: var(--muted); margin-top: 8px; }
+    .a-btn-sm { background: transparent; color: var(--muted); border: 1px solid rgba(255,255,255,0.1); border-radius: 3px; padding: 6px 12px; font-family: var(--font); font-size: 10px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer; }
   </style>
 </head>
 <body>
@@ -126,6 +140,29 @@
       </div>
     </div>
     <div class="admin-body">
+
+      <div class="admin-section">
+        <div class="admin-section-title">overview</div>
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-num" id="stat-visits">—</div><div class="stat-label">total visits</div></div>
+          <div class="stat-card"><div class="stat-num" id="stat-clicks">—</div><div class="stat-label">total clicks</div></div>
+          <div class="stat-card"><div class="stat-num" id="stat-today">—</div><div class="stat-label">visits today</div></div>
+        </div>
+      </div>
+
+      <div class="admin-section">
+        <div class="admin-section-title">clicks per link</div>
+        <table class="click-table">
+          <thead><tr><th>link</th><th></th><th>clicks</th></tr></thead>
+          <tbody id="clicks-table-body"></tbody>
+        </table>
+      </div>
+
+      <div class="admin-section">
+        <div class="admin-section-title">where they came from</div>
+        <div class="referrer-list" id="referrer-list"></div>
+      </div>
+
       <div class="admin-section">
         <div class="admin-section-title">edit links</div>
         <div class="link-editor-list" id="link-editor-list"></div>
@@ -139,6 +176,12 @@
         </div>
         <p class="save-note">saving pushes to github — site updates for everyone in ~30 seconds</p>
       </div>
+
+      <div class="admin-section">
+        <div class="admin-section-title">danger zone</div>
+        <button class="a-btn-danger" onclick="resetStats()">reset all analytics</button>
+      </div>
+
     </div>
     <div class="save-bar" id="save-bar">
       <p id="save-status">you have unsaved changes</p>
@@ -148,8 +191,9 @@
 
   <script>
     const ADMIN_PW = 'tn490admin';
-    const REPO = 'sith490/tn490sith';
+    const REPO = 'sith490/tn490landingpage';
     const FILE_PATH = 'public/links.json';
+    const STATS_PATH = 'public/stats.json';
 
     let editLinks = [];
 
@@ -157,6 +201,51 @@
       const r = await fetch('/api/token');
       const d = await r.json();
       return d.token;
+    }
+
+    async function getStats() {
+      try {
+        const r = await fetch('/stats.json?v=' + Date.now());
+        return await r.json();
+      } catch { return { visits: 0, todayVisits: 0, todayDate: '', clicks: {}, referrers: {} }; }
+    }
+
+    async function saveStats(stats) {
+      try {
+        const token = await getToken();
+        const content = btoa(unescape(encodeURIComponent(JSON.stringify(stats, null, 2))));
+        const getRes = await fetch(`https://api.github.com/repos/${REPO}/contents/${STATS_PATH}`, {
+          headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' }
+        });
+        const sha = getRes.ok ? (await getRes.json()).sha : undefined;
+        const body = { message: 'update stats', content };
+        if (sha) body.sha = sha;
+        await fetch(`https://api.github.com/repos/${REPO}/contents/${STATS_PATH}`, {
+          method: 'PUT',
+          headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+      } catch(e) { console.error('stats save failed', e); }
+    }
+
+    async function trackVisit() {
+      const stats = await getStats();
+      stats.visits = (stats.visits || 0) + 1;
+      const today = new Date().toISOString().slice(0, 10);
+      if (stats.todayDate !== today) { stats.todayDate = today; stats.todayVisits = 0; }
+      stats.todayVisits = (stats.todayVisits || 0) + 1;
+      const ref = document.referrer ? (new URL(document.referrer).hostname || 'direct') : 'direct';
+      stats.referrers = stats.referrers || {};
+      stats.referrers[ref] = (stats.referrers[ref] || 0) + 1;
+      saveStats(stats);
+    }
+
+    async function trackClick(label, url) {
+      window.open(url, '_blank', 'noopener');
+      const stats = await getStats();
+      stats.clicks = stats.clicks || {};
+      stats.clicks[label] = (stats.clicks[label] || 0) + 1;
+      saveStats(stats);
     }
 
     async function renderPublic() {
@@ -170,7 +259,7 @@
           if (i === 1) { const lbl = document.createElement('div'); lbl.className = 'section-label'; lbl.style.marginTop = '20px'; lbl.textContent = 'catalogue'; container.appendChild(lbl); }
           const a = document.createElement('div');
           a.className = 'link-item';
-          a.onclick = () => window.open(l.url, '_blank', 'noopener');
+          a.onclick = () => trackClick(l.label, l.url);
           a.innerHTML = `<span class="link-label">${l.label}</span>${l.badge ? `<span class="link-badge">${l.badge}</span>` : ''}<span class="link-arrow">→</span>`;
           container.appendChild(a);
         });
@@ -192,6 +281,35 @@
       const r = await fetch('/links.json?v=' + Date.now());
       editLinks = await r.json();
       renderLinkEditor();
+      loadAdminStats();
+    }
+
+    async function loadAdminStats() {
+      const s = await getStats();
+      document.getElementById('stat-visits').textContent = s.visits || 0;
+      document.getElementById('stat-today').textContent = s.todayVisits || 0;
+      const totalClicks = Object.values(s.clicks || {}).reduce((a, b) => a + b, 0);
+      document.getElementById('stat-clicks').textContent = totalClicks;
+      const tbody = document.getElementById('clicks-table-body');
+      tbody.innerHTML = '';
+      const clicks = s.clicks || {};
+      const maxClicks = Math.max(...Object.values(clicks), 1);
+      if (Object.keys(clicks).length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" style="color:var(--muted);font-size:12px;padding:12px 0;">no clicks yet</td></tr>';
+      } else {
+        Object.entries(clicks).sort((a,b) => b[1]-a[1]).forEach(([label, count]) => {
+          const pct = Math.round((count / maxClicks) * 100);
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td>${label}</td><td><span class="bar-wrap"><span class="bar-fill" style="width:${pct}%"></span></span></td><td>${count}</td>`;
+          tbody.appendChild(tr);
+        });
+      }
+      const refList = document.getElementById('referrer-list');
+      refList.innerHTML = '';
+      const refs = s.referrers || {};
+      const sorted = Object.entries(refs).sort((a, b) => b[1] - a[1]);
+      if (sorted.length === 0) { refList.innerHTML = '<p style="font-size:12px;color:var(--muted);">no data yet</p>'; }
+      else { sorted.forEach(([ref, count]) => { const row = document.createElement('div'); row.className = 'referrer-row'; row.innerHTML = `<span>${ref}</span><span>${count}</span>`; refList.appendChild(row); }); }
     }
 
     function renderLinkEditor() {
@@ -252,10 +370,17 @@
       }
     }
 
+    async function resetStats() {
+      if (!confirm('reset all analytics? cannot be undone.')) return;
+      await saveStats({ visits: 0, todayVisits: 0, todayDate: '', clicks: {}, referrers: {} });
+      loadAdminStats();
+    }
+
     if (location.hash === '#admin') {
       if (isAdmin()) { showAdmin(); }
       else { document.getElementById('admin-login').style.display = 'flex'; }
     } else {
+      trackVisit();
       renderPublic();
     }
   </script>
