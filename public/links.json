@@ -1,8 +1,37 @@
 [
-  {"label":"wake the neighbours","url":"https://ffm.to/waketheneighboursso_","badge":"EP"},
-  {"label":"ring around the rosie","url":"https://ffm.to/ringaroundtherosieso_","badge":""},
-  {"label":"ain't stopping","url":"https://ffm.to/aintstoppingso_","badge":""},
-  {"label":"found you","url":"https://ffm.to/foundyouso_","badge":""},
-  {"label":"cycles","url":"https://ffm.to/cyclesso_","badge":""},
-  {"label":"tn_490 complete","url":"https://open.spotify.com/playlist/4svJH6kRdNYtIwmyHY7553?si=7c13d5f80e9f4e8c","badge":""}
+  {
+    "label": "wake the neighbours",
+    "url": "https://ffm.to/waketheneighboursso_",
+    "badge": "EP"
+  },
+  {
+    "label": "ring around the rosie",
+    "url": "https://ffm.to/ringaroundtherosieso_",
+    "badge": ""
+  },
+  {
+    "label": "ain't stopping",
+    "url": "https://ffm.to/aintstoppingso_",
+    "badge": ""
+  },
+  {
+    "label": "found you",
+    "url": "https://ffm.to/foundyouso_",
+    "badge": ""
+  },
+  {
+    "label": "cycles",
+    "url": "https://ffm.to/cyclesso_",
+    "badge": ""
+  },
+  {
+    "label": "tn_490 complete",
+    "url": "https://open.spotify.com/playlist/4svJH6kRdNYtIwmyHY7553?si=7c13d5f80e9f4e8c",
+    "badge": ""
+  },
+  {
+    "label": "best you know",
+    "url": "https://ffm.to/bestyouknowso_",
+    "badge": ""
+  }
 ]
