@@ -79,8 +79,6 @@
     .link-editor-row { display: grid; grid-template-columns: 1fr 1fr auto auto; gap: 10px; align-items: center; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 4px; padding: 14px; }
     .link-editor-row input { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 3px; padding: 9px 12px; color: #fff; font-family: var(--font); font-size: 12px; outline: none; width: 100%; }
     .link-editor-row input:focus { border-color: var(--accent); }
-    .badge-toggle { display: flex; align-items: center; gap: 6px; font-size: 10px; color: var(--muted); cursor: pointer; white-space: nowrap; }
-    .badge-toggle input[type=checkbox] { accent-color: var(--accent); width: 14px; height: 14px; }
     .add-link-row { display: flex; gap: 10px; }
     .add-link-row input { flex: 1; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 3px; padding: 10px 12px; color: #fff; font-family: var(--font); font-size: 12px; outline: none; }
     .save-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #0f0f0f; border-top: 1px solid rgba(255,255,255,0.07); padding: 16px 28px; display: none; align-items: center; justify-content: space-between; z-index: 20; }
@@ -255,8 +253,9 @@
         const container = document.getElementById('links-container');
         container.innerHTML = '';
         links.forEach((l, i) => {
-          if (i === 0) { const lbl = document.createElement('div'); lbl.className = 'section-label'; lbl.textContent = 'new project'; container.appendChild(lbl); }
-          if (i === 1) { const lbl = document.createElement('div'); lbl.className = 'section-label'; lbl.style.marginTop = '20px'; lbl.textContent = 'catalogue'; container.appendChild(lbl); }
+          if (l.badge === 'SINGLE') { const lbl = document.createElement('div'); lbl.className = 'section-label'; lbl.textContent = 'new single'; container.appendChild(lbl); }
+          else if (l.badge === 'EP' && !links.slice(0,i).some(x => x.badge === 'EP')) { const lbl = document.createElement('div'); lbl.className = 'section-label'; lbl.style.marginTop = '20px'; lbl.textContent = 'catalogue'; container.appendChild(lbl); }
+          else if (!l.badge && !links.slice(0,i).some(x => !x.badge)) { const lbl = document.createElement('div'); lbl.className = 'section-label'; lbl.style.marginTop = '20px'; lbl.textContent = 'catalogue'; container.appendChild(lbl); }
           const a = document.createElement('div');
           a.className = 'link-item';
           a.onclick = () => trackClick(l.label, l.url);
@@ -321,7 +320,7 @@
         row.innerHTML = `
           <input value="${l.label}" placeholder="label" oninput="editLinks[${i}].label=this.value;markDirty()" />
           <input value="${l.url}" placeholder="url" oninput="editLinks[${i}].url=this.value;markDirty()" />
-          <label class="badge-toggle"><input type="checkbox" ${l.badge ? 'checked' : ''} onchange="editLinks[${i}].badge=this.checked?'EP':'';markDirty()" /> EP</label>
+          <select onchange="editLinks[${i}].badge=this.value;markDirty()" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:3px;padding:6px 8px;color:#fff;font-family:inherit;font-size:11px;outline:none;"><option value="" ${!l.badge?'selected':''}>none</option><option value="EP" ${l.badge==='EP'?'selected':''}>EP</option><option value="SINGLE" ${l.badge==='SINGLE'?'selected':''}>SINGLE</option></select>
           <button class="a-btn-danger" onclick="removeLink(${i})">✕</button>
         `;
         list.appendChild(row);
