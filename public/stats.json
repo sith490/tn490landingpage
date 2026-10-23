@@ -1,11 +1,10 @@
 {
-  "visits": 18,
-  "todayVisits": 18,
-  "todayDate": "2026-10-19",
-  "clicks": {
-    "wake the neighbours": 1
-  },
+  "visits": 19,
+  "todayVisits": 1,
+  "todayDate": "2026-10-23",
+  "clicks": {},
   "referrers": {
-    "direct": 18
+    "direct": 18,
+    "l.instagram.com": 1
   }
 }
