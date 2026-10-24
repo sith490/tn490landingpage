@@ -1,11 +1,10 @@
 {
-  "visits": 18,
-  "todayVisits": 18,
-  "todayDate": "2026-10-19",
-  "clicks": {
-    "tn_490 complete": 1
-  },
+  "visits": 19,
+  "todayVisits": 1,
+  "todayDate": "2026-10-24",
+  "clicks": {},
   "referrers": {
-    "direct": 18
+    "direct": 18,
+    "l.instagram.com": 1
   }
 }
