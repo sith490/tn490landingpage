@@ -1,11 +1,9 @@
 {
-  "visits": 18,
-  "todayVisits": 18,
-  "todayDate": "2026-10-19",
-  "clicks": {
-    "tn_490 complete": 1
-  },
+  "visits": 1,
+  "todayVisits": 1,
+  "todayDate": "2026-10-27",
+  "clicks": {},
   "referrers": {
-    "direct": 18
+    "direct": 1
   }
 }
