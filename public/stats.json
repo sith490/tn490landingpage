@@ -1,11 +1,9 @@
 {
-  "visits": 18,
-  "todayVisits": 18,
-  "todayDate": "2026-10-19",
-  "clicks": {
-    " pre save best you know": 1
-  },
+  "visits": 19,
+  "todayVisits": 1,
+  "todayDate": "2026-10-27",
+  "clicks": {},
   "referrers": {
-    "direct": 18
+    "direct": 19
   }
 }
