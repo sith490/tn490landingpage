@@ -1,10 +1,11 @@
 {
-  "visits": 13,
-  "todayVisits": 1,
-  "todayDate": "2026-11-13",
-  "clicks": {},
+  "visits": 12,
+  "todayVisits": 12,
+  "todayDate": "2026-11-12",
+  "clicks": {
+    " pre save best you know": 1
+  },
   "referrers": {
-    "direct": 12,
-    "l.instagram.com": 1
+    "direct": 12
   }
 }
