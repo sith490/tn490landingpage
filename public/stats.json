@@ -1,11 +1,9 @@
 {
-  "visits": 12,
-  "todayVisits": 12,
-  "todayDate": "2026-11-12",
-  "clicks": {
-    "found you": 1
-  },
+  "visits": 13,
+  "todayVisits": 1,
+  "todayDate": "2026-11-24",
+  "clicks": {},
   "referrers": {
-    "direct": 12
+    "direct": 13
   }
 }
